@@ -1,3 +1,10 @@
+/**
+ * core-decorators.js
+ * (c) 2016 Jay Phelps
+ * MIT Licensed
+ * https://github.com/jayphelps/core-decorators.js
+ * @license
+ */
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
@@ -1226,18 +1233,22 @@ function _slicedToArray(arr, i) { if (Array.isArray(arr)) { return arr; } else i
 
 var _privateUtils = require('./private/utils');
 
-var CONSOLE_NATIVE = console;
-
 var labels = {};
-var CONSOLE_TIME = console.time ? console.time.bind(console) : function (label) {
-  labels[label] = new Date();
-};
-var CONSOLE_TIMEEND = console.timeEnd ? console.timeEnd.bind(console) : function (label) {
-  var timeNow = new Date();
-  var timeTaken = timeNow - labels[label];
-  console.log('' + label + ': ' + timeTaken + 'ms');
+
+// Exported for mocking in tests
+var defaultConsole = {
+  time: console.time ? console.time.bind(console) : function (label) {
+    labels[label] = new Date();
+  },
+  timeEnd: console.timeEnd ? console.timeEnd.bind(console) : function (label) {
+    var timeNow = new Date();
+    var timeTaken = timeNow - labels[label];
+    delete labels[label];
+    console.log('' + label + ': ' + timeTaken + 'ms');
+  }
 };
 
+exports.defaultConsole = defaultConsole;
 var count = 0;
 
 function handleDescriptor(target, key, descriptor, _ref) {
@@ -1246,10 +1257,9 @@ function handleDescriptor(target, key, descriptor, _ref) {
   var _ref2$0 = _ref2[0];
   var prefix = _ref2$0 === undefined ? null : _ref2$0;
   var _ref2$1 = _ref2[1];
-  var konsole = _ref2$1 === undefined ? null : _ref2$1;
+  var console = _ref2$1 === undefined ? defaultConsole : _ref2$1;
 
   var fn = descriptor.value;
-  var CONSOLE = konsole || CONSOLE_NATIVE;
 
   if (prefix === null) {
     prefix = '' + target.constructor.name + '.' + key;
@@ -1261,16 +1271,14 @@ function handleDescriptor(target, key, descriptor, _ref) {
 
   return _extends({}, descriptor, {
     value: function value() {
-      var time = CONSOLE.time || CONSOLE_TIME;
-      var timeEnd = CONSOLE.timeEnd || CONSOLE_TIMEEND;
       var label = '' + prefix + '-' + count;
       count++;
-      time(label);
+      console.time(label);
 
       try {
         return fn.apply(this, arguments);
       } finally {
-        timeEnd(label);
+        console.timeEnd(label);
       }
     }
   });
@@ -1283,8 +1291,6 @@ function time() {
 
   return (0, _privateUtils.decorate)(handleDescriptor, args);
 }
-
-module.exports = exports['default'];
 },{"./private/utils":13}],18:[function(require,module,exports){
 self["CoreDecorators"] = require("./../../../../../Users/jphelps/Projects/jayphelps/core-decorators.js/lib/core-decorators.js");
 
