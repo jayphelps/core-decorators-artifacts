@@ -1,10 +1,3 @@
-/**
- * core-decorators.js
- * (c) 2016 Jay Phelps
- * MIT Licensed
- * https://github.com/jayphelps/core-decorators.js
- * @license
- */
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
@@ -53,8 +46,8 @@ function getBoundSuper(obj, fn) {
   return superStore.get(fn);
 }
 
-function autobindClass(target) {
-  var descs = (0, _privateUtils.getOwnPropertyDescriptors)(target.prototype);
+function autobindClass(klass) {
+  var descs = (0, _privateUtils.getOwnPropertyDescriptors)(klass.prototype);
 
   for (var key in descs) {
     var desc = descs[key];
@@ -62,7 +55,7 @@ function autobindClass(target) {
       continue;
     }
 
-    defineProperty(target.prototype, key, autobindMethod(target, key, desc));
+    defineProperty(klass.prototype, key, autobindMethod(klass.prototype, key, desc));
   }
 }
 
@@ -80,8 +73,8 @@ function autobindMethod(target, key, _ref) {
     enumerable: false,
 
     get: function get() {
-      // This happens if someone accesses the
-      // property directly on the prototype
+      // This happens if someone accesses the property directly
+      // on the prototype i.e. Klass.prototype.key
       if (this === target) {
         return fn;
       }
@@ -132,6 +125,13 @@ function autobind() {
 
 module.exports = exports['default'];
 },{"./private/utils":13}],2:[function(require,module,exports){
+/**
+ * core-decorators.js
+ * (c) 2016 Jay Phelps
+ * MIT Licensed
+ * https://github.com/jayphelps/core-decorators.js
+ * @license
+ */
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
